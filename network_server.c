@@ -61,10 +61,11 @@ char *inet_ntoa(struct in_addr *in)
     char *str_ip = NULL;
     u_int32_t int_ip = 0;
 
-    if (!(str_ip = kmalloc(16 * sizeof(char), GFP_KERNEL)))
+    if (!(str_ip = kmalloc(16 * sizeof(char), GFP_KERNEL))) {
         return NULL;
-    else
+    } else {
         memset(str_ip, 0, 16);
+    }
 
     int_ip = in->s_addr;
     sprintf(str_ip, "%d.%d.%d.%d", (int_ip) & 0xFF, (int_ip >> 8) & 0xFF, (int_ip >> 16) & 0xFF, (int_ip >> 16) & 0xFF);
@@ -86,21 +87,26 @@ int tcp_server_send(struct socket *sock, int id, const char *buf, const size_t l
     msg.msg_flags = flags;
     msg.msg_flags   = 0;
 
-    oldmm = get_fs(); set_fs(KERNEL_DS);
+    oldmm = get_fs();
+    set_fs(KERNEL_DS);
 
-repeat_send:
-    vec.iov_len = left;
-    vec.iov_base = (char *)buf + written;
-    len = kernel_sendmsg(sock, &msg, &vec, left, left);
+    while (1) {
+        vec.iov_len = left;
+        vec.iov_base = (char *)buf + written;
+        len = kernel_sendmsg(sock, &msg, &vec, left, left);
 
-    if ((len == -ERESTARTSYS) || (!(flags & MSG_DONTWAIT) && (len == -EAGAIN)))
-        goto repeat_send;
+        if ((len == -ERESTARTSYS) || (!(flags & MSG_DONTWAIT) && (len == -EAGAIN))) {
+            continue;
+        }
 
-    if (len > 0) {
-        written += len;
-        left -= len;
-        if (left)
-            goto repeat_send;
+        if (len > 0) {
+            written += len;
+            left -= len;
+
+            if (!left) {
+                break;
+            }
+        }
     }
 
     set_fs(oldmm);
@@ -128,14 +134,17 @@ int tcp_server_receive(struct socket *sock, int id, struct sockaddr_in *address,
     vec.iov_len = size;
     vec.iov_base = buf;
 
-read_again:
-    if (!skb_queue_empty(&sock->sk->sk_receive_queue))
-        pr_info("recv queue empty ? %s \n", skb_queue_empty(&sock->sk->sk_receive_queue) ? "yes" : "no");
+    while (1) {
+        if (!skb_queue_empty(&sock->sk->sk_receive_queue)) {
+            pr_info("recv queue empty ? %s \n", skb_queue_empty(&sock->sk->sk_receive_queue) ? "yes" : "no");
+        }
 
-    len = kernel_recvmsg(sock, &msg, &vec, size, size, flags);
+        len = kernel_recvmsg(sock, &msg, &vec, size, size, flags);
 
-    if (len == -EAGAIN || len == -ERESTARTSYS)
-        goto read_again;
+        if (len != -EAGAIN && len != -ERESTARTSYS) {
+            break;
+        }
+    }
 
     tmp = inet_ntoa(&(address->sin_addr));
     pr_info("client-> %s:%d, says: %s\n", tmp, ntohs(address->sin_port), buf);
@@ -182,8 +191,7 @@ int connection_handler(void *data)
             if (signal_pending(current)) {
                 __set_current_state(TASK_RUNNING);
                 remove_wait_queue(&accept_socket->sk->sk_wq->wait, &recv_wait);
-
-                goto out;
+                goto release;
             }
         }
 
@@ -195,24 +203,16 @@ int connection_handler(void *data)
         ret = tcp_server_receive(accept_socket, id, address, in_buf, len, MSG_DONTWAIT);
 
         if (ret > 0) {
-            if (memcmp(in_buf, "HOLA", 4) == 0) {
-                memset(out_buf, 0, len + 1);
-                strcat(out_buf, "HOLASI");
-                pr_info("sending response: %s\n", out_buf);
-                tcp_server_send(accept_socket, id, out_buf, strlen(out_buf), MSG_DONTWAIT);
-            }
+            memset(out_buf, 0, len + 1);
+            memcmp(in_buf, "done", 4) == 0 ? strcat(out_buf, "See you again...") : strcat(out_buf, in_buf);
+            pr_info("sending response: %s\n", out_buf);
+            tcp_server_send(accept_socket, id, out_buf, strlen(out_buf), MSG_DONTWAIT);
 
-            if (memcmp(in_buf, "ADIOS", 5) == 0) {
-                memset(out_buf, 0, len + 1);
-                strcat(out_buf, "ADIOSAMIGO");
-                pr_info("sending response: %s\n", out_buf);
-                tcp_server_send(accept_socket, id, out_buf, strlen(out_buf), MSG_DONTWAIT);
-                break;
-            }
+            if (memcmp(in_buf, "done", 4) == 0) break;
         }
     }
 
-out:
+release:
     tcp_conn_handler->tcp_conn_handler_stopped[id] = 1;
     kfree(tcp_conn_handler->data[id]->address);
     kfree(tcp_conn_handler->data[id]);
@@ -262,7 +262,6 @@ int tcp_server_accept(void)
                 __set_current_state(TASK_RUNNING);
                 remove_wait_queue(&socket->sk->sk_wq->wait, &accept_wait);
                 sock_release(accept_socket);
-
                 return 0;
             }
 
@@ -306,8 +305,9 @@ int tcp_server_accept(void)
 
         pr_info("gave free id: %d\n", id);
 
-        if (id == MAX_CONNS)
+        if (id == MAX_CONNS) {
             goto release;
+        }
 
         data = kmalloc(sizeof(struct tcp_conn_handler_data), GFP_KERNEL);
         memset(data, 0, sizeof(struct tcp_conn_handler_data));
@@ -331,9 +331,6 @@ int tcp_server_accept(void)
         }
     }
 
-    tcp_acceptor_stopped = 1;
-    do_exit(0);
-
 release:
     sock_release(accept_socket);
 
@@ -350,9 +347,8 @@ int tcp_server_listen(void)
 
     DECLARE_WAIT_QUEUE_HEAD(wq);
     allow_signal(SIGKILL | SIGTERM);
-    server_err = sock_create(PF_INET, SOCK_STREAM, IPPROTO_TCP, &tcp_server->listen_socket);
 
-    if (server_err < 0) {
+    if ((server_err = sock_create(PF_INET, SOCK_STREAM, IPPROTO_TCP, &tcp_server->listen_socket)) < 0) {
         pr_info(" *** mtp | Error: %d while creating tcp server listen socket | tcp_server_listen *** \n", server_err);
         goto err;
     }
@@ -364,16 +360,12 @@ int tcp_server_listen(void)
     server.sin_family = AF_INET;
     server.sin_port = htons(DEFAULT_PORT);
 
-    server_err = conn_socket->ops->bind(conn_socket, (struct sockaddr*)&server, sizeof(server));
-
-    if (server_err < 0) {
+    if ((server_err = conn_socket->ops->bind(conn_socket, (struct sockaddr*)&server, sizeof(server))) < 0) {
         pr_info(" *** mtp | Error: %d while binding tcp server listen socket | tcp_server_listen *** \n", server_err);
         goto release;
     }
 
-    server_err = conn_socket->ops->listen(conn_socket, 16);
-
-    if (server_err < 0) {
+    if ((server_err = conn_socket->ops->listen(conn_socket, MAX_CONNS)) < 0) {
         pr_info(" *** mtp | Error: %d while listening in tcp server listen socket | tcp_server_listen *** \n", server_err);
         goto release;
     }
@@ -388,13 +380,10 @@ int tcp_server_listen(void)
             return 0;
         }
 
-        if (signal_pending(current))
-            goto release;
+        if (signal_pending(current)) {
+            break;
+        }
     }
-
-    sock_release(conn_socket);
-    tcp_listener_stopped = 1;
-    do_exit(0);
 
 release:
     sock_release(conn_socket);
