@@ -629,7 +629,6 @@ static void fh_exit(void)
 	fh_remove_hooks(demo_hooks, ARRAY_SIZE(demo_hooks));
 }
 
-
 static int __init kern_monitor_init(void)
 {
         int err;
