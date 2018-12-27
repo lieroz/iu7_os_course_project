@@ -24,6 +24,7 @@
 
 #define DEFAULT_PORT 8080
 #define MAX_CONNS 16
+#define MSG_LEN 64
 #define MODULE_NAME "kern_monitor"
 
 int tcp_listener_stopped = 0;
@@ -157,8 +158,7 @@ int connection_handler(void *data)
 
     int id = conn_data->thread_id;
     int ret;
-    int len = 49;
-    unsigned char in_buf[len + 1];
+    unsigned char in_buf[MSG_LEN];
 
     DECLARE_WAITQUEUE(recv_wait, current);
     allow_signal(SIGKILL | SIGSTOP);
@@ -194,12 +194,12 @@ int connection_handler(void *data)
         remove_wait_queue(&accept_socket->sk->sk_wq->wait, &recv_wait);
 
         pr_info("receiving message\n");
-        memset(in_buf, 0, len + 1);
-        ret = tcp_server_receive(accept_socket, id, address, in_buf, len, MSG_DONTWAIT);
+        memset(in_buf, 0, MSG_LEN);
+        ret = tcp_server_receive(accept_socket, id, address, in_buf, MSG_LEN, MSG_DONTWAIT);
 
         if (ret > 0) {
             if (memcmp(in_buf, "done", 4) == 0) {
-                    memset(in_buf, 0, len + 1);
+                    memset(in_buf, 0, MSG_LEN);
                     strcat(in_buf, "Connection closed... See you again");
                     tcp_server_send(accept_socket, id, in_buf, strlen(in_buf), MSG_DONTWAIT);
                     break;
@@ -577,6 +577,18 @@ void fh_remove_hooks(struct ftrace_hook *hooks, size_t count)
 #pragma GCC optimize("-fno-optimize-sibling-calls")
 #endif
 
+static void generic_send(unsigned char *msg)
+{
+        int id;
+
+        for (id = 0; id < MAX_CONNS; ++id) {
+                struct tcp_conn_handler_data *data = tcp_conn_handler->data[id];
+                if (data != NULL) {
+                        tcp_server_send(data->accept_socket, id, msg, strlen(msg), MSG_DONTWAIT);
+                }
+        }
+}
+
 static asmlinkage long (*real_sys_clone)(unsigned long clone_flags,
 		unsigned long newsp, int __user *parent_tidptr,
 		int __user *child_tidptr, unsigned long tls);
@@ -586,77 +598,25 @@ static asmlinkage long fh_sys_clone(unsigned long clone_flags,
 		int __user *child_tidptr, unsigned long tls)
 {
 	long ret;
-        int id;
-        int len = 49;
-        unsigned char out_buf[len + 1];
+        unsigned char out_buf[MSG_LEN];
 
+        memset(out_buf, 0, MSG_LEN);
+        sprintf(out_buf, "clone() before\n");
 	pr_info("clone() before\n");
-
-        for (id = 0; id < MAX_CONNS; ++id) {
-                struct tcp_conn_handler_data *data = tcp_conn_handler->data[id];
-                if (data != NULL) {
-                        memset(out_buf, 0, len + 1);
-                        strcat(out_buf, "clone() before\n");
-                        tcp_server_send(data->accept_socket, id, out_buf, strlen(out_buf), MSG_DONTWAIT);
-                }
-        }
+        generic_send(out_buf);
 
 	ret = real_sys_clone(clone_flags, newsp, parent_tidptr, child_tidptr, tls);
-
-        for (id = 0; id < MAX_CONNS; ++id) {
-                struct tcp_conn_handler_data *data = tcp_conn_handler->data[id];
-                if (data != NULL) {
-                        memset(out_buf, 0, len + 1);
-                        sprintf(out_buf, "clone() after: %ld\n", ret);
-                        tcp_server_send(data->accept_socket, id, out_buf, strlen(out_buf), MSG_DONTWAIT);
-                }
-        }
-
+        
+        memset(out_buf, 0, MSG_LEN);
+        sprintf(out_buf, "clone() after: %ld\n", ret);
 	pr_info("clone() after: %ld\n", ret);
-
-	return ret;
-}
-
-static char *duplicate_filename(const char __user *filename)
-{
-	char *kernel_filename;
-
-	if (!(kernel_filename = kmalloc(4096, GFP_KERNEL)))
-		return NULL;
-
-	if (strncpy_from_user(kernel_filename, filename, 4096) < 0) {
-		kfree(kernel_filename);
-		return NULL;
-	}
-
-	return kernel_filename;
-}
-
-static asmlinkage long (*real_sys_execve)(const char __user *filename,
-		const char __user *const __user *argv,
-		const char __user *const __user *envp);
-
-static asmlinkage long fh_sys_execve(const char __user *filename,
-		const char __user *const __user *argv,
-		const char __user *const __user *envp)
-{
-	long ret;
-	char *kernel_filename;
-
-	kernel_filename = duplicate_filename(filename);
-	pr_info("execve() before: %s\n", kernel_filename);
-
-	kfree(kernel_filename);
-
-	ret = real_sys_execve(filename, argv, envp);
-	pr_info("execve() after: %ld\n", ret);
+        generic_send(out_buf);
 
 	return ret;
 }
 
 static struct ftrace_hook demo_hooks[] = {
 	HOOK("__x64_sys_clone",  fh_sys_clone,  &real_sys_clone),
-	HOOK("__x64_sys_execve", fh_sys_execve, &real_sys_execve),
 };
 
 static int fh_init(void)
