@@ -1,60 +1,4 @@
-
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/init.h>
-#include <linux/slab.h>
-
-#include <linux/errno.h>
-#include <linux/types.h>
-
-#include <linux/netdevice.h>
-#include <linux/ip.h>
-#include <linux/in.h>
-
-#include <linux/unistd.h>
-#include <linux/wait.h>
-
-#include <net/tcp.h>
-#include <net/inet_connection_sock.h>
-#include <net/request_sock.h>
-
-#include <linux/kthread.h>
-
-#define DEFAULT_PORT 8080
-#define MODULE_NAME "tmem_tcp_server"
-#define MAX_CONNS 16
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Kamakin Andrey");
-
-static int tcp_listener_stopped = 0;
-static int tcp_acceptor_stopped = 0;
-
-DEFINE_SPINLOCK(tcp_server_lock);
-
-struct tcp_conn_handler_data {
-    struct sockaddr_in *address;
-    struct socket *accept_socket;
-    int thread_id;
-};
-
-struct tcp_conn_handler {
-    struct tcp_conn_handler_data *data[MAX_CONNS];
-    struct task_struct *thread[MAX_CONNS];
-    int tcp_conn_handler_stopped[MAX_CONNS];
-};
-
-static struct tcp_conn_handler *tcp_conn_handler;
-
-
-struct tcp_server_service {
-    int running;
-    struct socket *listen_socket;
-    struct task_struct *thread;
-    struct task_struct *accept_thread;
-};
-
-static struct tcp_server_service *tcp_server;
+#include "server.h"
 
 char *inet_ntoa(struct in_addr *in)
 {
@@ -400,7 +344,7 @@ int tcp_server_start(void)
     return 0;
 }
 
-static int __init network_server_init(void)
+static int network_server_init(void)
 {
     pr_info(" *** mtp | network_server initiated | network_server_init ***\n");
     tcp_server = kmalloc(sizeof(struct tcp_server_service), GFP_KERNEL);
@@ -413,7 +357,7 @@ static int __init network_server_init(void)
     return 0;
 }
 
-static void __exit network_server_exit(void)
+static void network_server_exit(void)
 {
     int ret;
     int id;
@@ -458,6 +402,3 @@ static void __exit network_server_exit(void)
 
     pr_info(" *** mtp | network server module unloaded | network_server_exit *** \n");
 }
-
-module_init(network_server_init)
-module_exit(network_server_exit)
