@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018/Arch Linux) (preloaded format=pdflatex 2018.12.23)  28 DEC 2018 03:37
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018/Arch Linux) (preloaded format=pdflatex 2018.12.23)  28 DEC 2018 12:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1205,7 +1205,7 @@ File: uni-32.def 2013/05/13 UCS: Unicode data U+2000..U+20FF
 LaTeX Warning: Citation `book4' on page 9 undefined on input line 138.
 
 [9]
-<img/1.png, id=214, 386.44376pt x 245.91875pt>
+<img/1.png, id=224, 386.44376pt x 245.91875pt>
 File: img/1.png Graphic file (type png)
 <use img/1.png>
 Package pdftex.def Info: img/1.png  used on input line 145.
@@ -1215,18 +1215,18 @@ Package pdftex.def Info: img/1.png  used on input line 145.
 LaTeX Warning: Citation `book4' on page 10 undefined on input line 150.
 
 [10 <./img/1.png>]
-<img/2.png, id=221, 361.35pt x 314.17375pt>
+<img/2.png, id=231, 361.35pt x 314.17375pt>
 File: img/2.png Graphic file (type png)
 <use img/2.png>
 Package pdftex.def Info: img/2.png  used on input line 155.
 (pdftex.def)             Requested size: 273.14923pt x 237.48976pt.
  [11 <./img/2.png>]
-<img/3.png, id=228, 369.38pt x 194.7275pt>
+<img/3.png, id=238, 369.38pt x 194.7275pt>
 File: img/3.png Graphic file (type png)
 <use img/3.png>
 Package pdftex.def Info: img/3.png  used on input line 165.
 (pdftex.def)             Requested size: 273.14923pt x 143.99802pt.
-<img/4.png, id=230, 396.48125pt x 463.7325pt>
+<img/4.png, id=240, 396.48125pt x 463.7325pt>
 File: img/4.png Graphic file (type png)
 <use img/4.png>
 Package pdftex.def Info: img/4.png  used on input line 173.
@@ -1271,7 +1271,7 @@ Underfull \hbox (badness 2671) in paragraph at lines 185--186
 е^^?лен^^?ных для дан^^?ной ар^^?хи^^?тек^^?ту^^?ры
  []
 
-<img/5.png, id=244, 398.48875pt x 405.515pt>
+<img/5.png, id=254, 398.48875pt x 405.515pt>
 File: img/5.png Graphic file (type png)
 <use img/5.png>
 Package pdftex.def Info: img/5.png  used on input line 191.
@@ -1332,15 +1332,19 @@ File: koi8-r.def 2014/10/28 v1.0d Input encoding file
 (/usr/share/texmf-dist/tex/latex/cyrillic/koi8-r.def
 File: koi8-r.def 2014/10/28 v1.0d Input encoding file
 ) [19]
-<img/hook_work_scheme.png, id=376, 2364.835pt x 1716.4125pt>
+<img/hook_work_scheme.png, id=386, 2364.835pt x 1716.4125pt>
 File: img/hook_work_scheme.png Graphic file (type png)
 <use img/hook_work_scheme.png>
 Package pdftex.def Info: img/hook_work_scheme.png  used on input line 150.
 (pdftex.def)             Requested size: 455.24411pt x 330.41698pt.
-) [20 <./img/hook_work_scheme.png (PNG copy)>]
+ [20 <./img/hook_work_scheme.png (PNG copy)>] (/usr/share/texmf-dist/tex/latex/
+cyrillic/koi8-r.def
+File: koi8-r.def 2014/10/28 v1.0d Input encoding file
+)
+[21]) [22]
 \openout2 = `40-impl.aux'.
 
- (./40-impl.tex) [21
+ (./40-impl.tex) [23
 
 
 
@@ -1350,14 +1354,14 @@ Package pdftex.def Info: img/hook_work_scheme.png  used on input line 150.
  (./50-research.tex)
 \openout2 = `60-economics.aux'.
 
-
-(./60-economics.tex)
+ (./60-economics.tex)
 \openout2 = `70-bzd.aux'.
 
- (./70-bzd.tex)
+
+(./70-bzd.tex)
 \openout2 = `80-conclusion.aux'.
 
- (./80-conclusion.tex) [22
+ (./80-conclusion.tex) [24
 
 
 
@@ -1373,9 +1377,10 @@ Package pdftex.def Info: img/hook_work_scheme.png  used on input line 150.
  (./81-biblio.tex
 LaTeX Font Info:    Try loading font information for T2A+cmtt on input line 13.
 
+
 (/usr/share/texmf-dist/tex/latex/cyrillic/t2acmtt.fd
 File: t2acmtt.fd 2001/08/11 v1.0a Computer Modern Cyrillic font definitions
-)) [23
+)) [25
 
 
 
@@ -1396,7 +1401,7 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 60.
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 60.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 60.
 Package rerunfilecheck Info: File `rpz.out' has not changed.
-(rerunfilecheck)             Checksum: 85AEF2933C56616EBE638003301B6F3C;5898.
+(rerunfilecheck)             Checksum: AFD0D7AEDBBEAEC4F7EDCC20F68AD6E7;6375.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
@@ -1407,10 +1412,10 @@ LaTeX Warning: There were undefined references.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 60.
  ) 
 Here is how much of TeX's memory you used:
- 27086 strings out of 492639
- 454040 string characters out of 6135496
- 829590 words of memory out of 5000000
- 30169 multiletter control sequences out of 15000+600000
+ 27143 strings out of 492639
+ 455049 string characters out of 6135496
+ 829603 words of memory out of 5000000
+ 30201 multiletter control sequences out of 15000+600000
  20893 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  59i,7n,84p,1620b,1739s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1425,10 +1430,10 @@ blic/cm-super/sfrm1200.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/s
 frm1440.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></u
 sr/share/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/share/texmf-
 dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on rpz.pdf (23 pages, 462949 bytes).
+Output written on rpz.pdf (25 pages, 469253 bytes).
 PDF statistics:
- 481 PDF objects out of 1000 (max. 8388607)
- 412 compressed objects within 5 object streams
- 165 named destinations out of 1000 (max. 500000)
- 367 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 524 PDF objects out of 1000 (max. 8388607)
+ 453 compressed objects within 5 object streams
+ 188 named destinations out of 1000 (max. 500000)
+ 383 words of extra memory for PDF output out of 10000 (max. 10000000)
 
