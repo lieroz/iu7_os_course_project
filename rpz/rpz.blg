@@ -1,0 +1,60 @@
+This is BibTeX, Version 0.99d (TeX Live 2018/Arch Linux)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: rpz.aux
+A level-1 auxiliary file: 00-abstract.aux
+A level-1 auxiliary file: 10-defines.aux
+A level-1 auxiliary file: 11-abbrev.aux
+A level-1 auxiliary file: 12-intro.aux
+A level-1 auxiliary file: 20-analysis.aux
+A level-1 auxiliary file: 30-design.aux
+A level-1 auxiliary file: 40-impl.aux
+A level-1 auxiliary file: 50-research.aux
+A level-1 auxiliary file: 60-economics.aux
+A level-1 auxiliary file: 70-bzd.aux
+A level-1 auxiliary file: 80-conclusion.aux
+A level-1 auxiliary file: 81-biblio.aux
+The style file: gost780u.bst
+A level-1 auxiliary file: 90-appendix1.aux
+A level-1 auxiliary file: 91-appendix2.aux
+Database file #1: rpz.bib
+You've used 1 entry,
+            2674 wiz_defined-function locations,
+            656 strings with 5333 characters,
+and the built_in function-call counts, 268 in all, are:
+= -- 30
+> -- 4
+< -- 1
++ -- 2
+- -- 1
+* -- 8
+:= -- 38
+add.period$ -- 3
+call.type$ -- 1
+change.case$ -- 0
+chr.to.int$ -- 0
+cite$ -- 1
+duplicate$ -- 14
+empty$ -- 34
+format.name$ -- 2
+if$ -- 67
+int.to.chr$ -- 0
+int.to.str$ -- 1
+missing$ -- 0
+newline$ -- 15
+num.names$ -- 2
+pop$ -- 8
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 3
+stack$ -- 0
+substring$ -- 0
+swap$ -- 6
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 1
+width$ -- 2
+write$ -- 23
